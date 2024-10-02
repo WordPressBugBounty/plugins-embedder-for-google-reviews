@@ -1,5 +1,5 @@
 === Google Reviews WordPress Plugin (Widget to add and display reviews) ===
-Contributors: paretodigital, googlereviewsplugin, freemius
+Contributors: paretodigital, googlereviewsplugin
 Tags: google reviews, google reviews plugin, google reviews widget, google reviews block, google reviews slider
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -127,7 +127,9 @@ If you have any problem whatsoever or didn’t find the answer you were looking 
 
 ✨ [Live Demo](https://reviewsembedder.com/?utm_source=wp_dir&utm_medium=link&utm_campaign=live_demo) | 📚 [Documentation](https://reviewsembedder.com/docs/how-to-install/?utm_source=wp_dir&utm_medium=link&utm_campaign=docs) | 🌟 [PRO Features](https://reviewsembedder.com/?utm_source=wp_dir&utm_medium=link&utm_campaign=features#pricing) | 🔥 [Get PRO](https://reviewsembedder.com/?utm_source=wp_dir&utm_medium=link&utm_campaign=get_pro)
 
-Also check out our other plugin: YASR - [Star Rating Plugin for WordPress](https://wordpress.org/plugins/yet-another-stars-rating/)
+Also check out our other plugins:
+- YASR - [Star Rating Plugin for WordPress](https://wordpress.org/plugins/yet-another-stars-rating/)
+- Send Users Email – [Email Subscribers, Email Marketing Newsletter](https://wordpress.org/plugins/send-users-email/)
 
 == Frequently Asked Questions ==
 
