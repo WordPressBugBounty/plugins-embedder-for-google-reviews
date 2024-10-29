@@ -1,11 +1,11 @@
 === Google Reviews WordPress Plugin (Widget to add and display reviews) ===
 Contributors: paretodigital, googlereviewsplugin
 Tags: google reviews, google reviews plugin, google reviews widget, google reviews block, google reviews slider
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 Tags: google reviews, google, reviews, rating, reviews plugin
 
 This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
@@ -220,6 +220,9 @@ Statistically, 86% of customers hesitate to purchase from companies with negativ
 6. Google Reviews Plugin backend #2
 
 == Changelog ==
+= 1.6.2 =
+* Upgraded Freemius SDK
+* WP 6.7 compatibility
 = 1.0 =
 * Published first version
 = 1.1.3 =
