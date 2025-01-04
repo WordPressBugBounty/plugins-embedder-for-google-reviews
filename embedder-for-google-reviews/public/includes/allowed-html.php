@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $allowed_html;
 
@@ -66,5 +67,8 @@ $allowed_html = [
         'rows'      => [],
         'cols'      => [],
 	    'disabled'  => []
-    ]
+    ],
+    'fieldset' => [
+        'class' => [],
+    ],
 ];
