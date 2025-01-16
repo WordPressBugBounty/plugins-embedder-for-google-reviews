@@ -32,6 +32,7 @@ class GRWP_Google_Reviews_Activator {
         if ( !get_option( 'google_reviews_option_name' ) ) {
             $google_reviews_options = [];
             $google_reviews_options['show_dummy_content'] = '1';
+            $google_reviews_options['show_verified'] = '0';
             $google_reviews_options['serp_business_name'] = '';
             $google_reviews_options['serp_data_id'] = '';
             $google_reviews_options['style_2'] = 'Slider';
