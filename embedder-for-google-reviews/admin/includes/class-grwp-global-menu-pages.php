@@ -57,13 +57,13 @@ class GRWP_Global_Menu_Pages {
         esc_html_e( 'Display Settings', 'embedder-for-google-reviews' );
         ?>
                     </a>
-                    <!--
-                    <a href="#embedding_instructions"
+                    <a href="#slider_settings"
                        class="nav-tab">
                         <?php 
-        //esc_html_e('Embedding Instructions', 'embedder-for-google-reviews');
+        esc_html_e( 'Slider Settings', 'embedder-for-google-reviews' );
         ?>
-                    </a>-->
+                    </a>
+
                     <?php 
         ?>
                     <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=upgrade_tab&utm_campaign=upgrade"

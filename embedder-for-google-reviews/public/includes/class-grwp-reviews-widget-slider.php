@@ -8,7 +8,7 @@ class GRWP_Reviews_Widget_Slider
      * Slider HTML
      * @return string
      */
-    public function render( $style_type, $max_reviews = null, $show_place_info = false, $txt = '' ) {
+    public function render( $style_type, $link_user_profiles, $max_reviews = null, $show_place_info = false, $txt = '' ) {
 
         // error handling
         if ( $this->reviews_have_error ) {
@@ -28,6 +28,13 @@ class GRWP_Reviews_Widget_Slider
         if ( isset($this->options['show_verified']) ) {
             if ( $this->options['show_verified'] === '1' ) {
                 $show_verified = true;
+            }
+        }
+
+        $hide_slider_arrows = false;
+        if ( isset($this->options['hide_slider_arrows']) ) {
+            if ( $this->options['hide_slider_arrows'] === '1' ) {
+                $hide_slider_arrows = true;
             }
         }
 
@@ -84,7 +91,7 @@ class GRWP_Reviews_Widget_Slider
 
             $star_output = $this->get_star_output($review);
 
-            $slide_duration = $this->options['slide_duration'] ?? '';
+            $slide_duration = isset($this->options['slide_duration']) ? intval($this->options['slide_duration']) * 1000 : '';
 
             ob_start();
             require 'partials/slider/markup.php';

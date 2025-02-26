@@ -10,7 +10,7 @@ class GRWP_Global_Settings {
         $this->settings_slug = 'google-reviews-admin';
         $this->add_api_settings();
         $this->add_display_settings();
-        $this->add_embedding_instructions();
+        $this->add_slider_settings();
     }
 
     /**
@@ -223,6 +223,17 @@ class GRWP_Global_Settings {
             'google_reviews_style_layout_setting_section'
         );
         add_settings_field(
+            'link_users_profiles',
+            // id
+            /* translators: Link to users Google prilfe */
+            __( 'Link to users Profile <br> (uncheck for better SEO)', 'embedder-for-google-reviews' ),
+            array($this, 'link_users_profiles_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+        add_settings_field(
             'filter_words',
             // id
             /* translators: Filter by words (comma separated) */
@@ -236,29 +247,160 @@ class GRWP_Global_Settings {
     }
 
     /**
-     * Embeddding instructions
+     * Slider settings
+     * @return void
      */
-    private function add_embedding_instructions() {
+    private function add_slider_settings() {
+        // settings for styles and layout
+        register_setting( 
+            'google_reviews_slider_settings_group',
+            // option_group
+            'google_reviews_slider_settings',
+            // option_name
+            array($this, 'google_reviews_sanitize')
+         );
         add_settings_section(
-            'google_reviews_embedding_instructions_section',
+            'google_reviews_slider_setting_section',
             // id
             '',
             // title
-            array($this, 'reviews_instructions_section'),
+            array($this, 'google_reviews_display_slider_info'),
             // callback
             $this->settings_slug
         );
-        /*
-                add_settings_field(
-                    'embedding_instructions', // id
-                    /* translators: Shortcode */
-        /*
-            __( 'Shortcode', 'embedder-for-google-reviews' ), // title
-            array( $this, 'reviews_instructions_callback' ), // callback
-            $this->settings_slug, // page
-            'google_reviews_embedding_instructions_section' // section
+        add_settings_field(
+            'slide_duration',
+            // id
+            /* translators: Layout type */
+            __( 'Slide Duration (seconds). <br> Use \'0\' to disable autoplay', 'embedder-for-google-reviews' ),
+            array($this, 'slide_duration_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
         );
-        */
+        add_settings_field(
+            'hide_slider_arrows',
+            // id
+            /* translators: Layout type */
+            __( 'Hide slider arrows', 'embedder-for-google-reviews' ),
+            array($this, 'hide_slider_arrows_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
+        );
+        add_settings_field(
+            'disable_loop_slider',
+            // id
+            /* translators: Layout type */
+            __( 'Disable slider endless loop', 'embedder-for-google-reviews' ),
+            array($this, 'disable_loop_slider_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
+        );
+    }
+
+    /**
+     * Slide duration
+     * @return void
+     */
+    public function slide_duration_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <?php 
+        ?>
+            <div class="tooltip">
+                <input type="hidden"
+                       name="google_reviews_option_name[slide_duration]"
+                       value="5"
+                />
+                <input type="number"
+                       name="google_reviews_option_name[slide_duration]"
+                       id="slide_duration"
+                       value="5"
+                       disabled
+                />
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=slide_duration&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    public function hide_slider_arrows_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <?php 
+        ?>
+            <div class="tooltip">
+                <input type="hidden"
+                       name="google_reviews_option_name[hide_slider_arrows]"
+                       id="hide_slider_arrows"
+                       value="0"
+                />
+
+                <input type="checkbox"
+                       name="google_reviews_option_name[hide_slider_arrows]"
+                       disabled
+                />
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=slide_duration&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    public function disable_loop_slider_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <?php 
+        ?>
+            <div class="tooltip">
+                <input type="hidden"
+                       name="google_reviews_option_name[disable_loop_slider]"
+                       id="disable_loop_slider"
+                       value="0"
+                />
+
+                <input type="checkbox"
+                       name="google_reviews_option_name[disable_loop_slider]"
+                       disabled
+                />
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=slide_duration&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
     }
 
     /**
@@ -301,6 +443,9 @@ class GRWP_Global_Settings {
         if ( isset( $input['filter_below_5_stars'] ) ) {
             $sanitary_values['filter_below_5_stars'] = sanitize_text_field( $input['filter_below_5_stars'] );
         }
+        if ( isset( $input['slide_duration'] ) ) {
+            $sanitary_values['slide_duration'] = sanitize_text_field( $input['slide_duration'] );
+        }
         if ( isset( $input['exclude_reviews_without_text'] ) ) {
             $sanitary_values['exclude_reviews_without_text'] = $input['exclude_reviews_without_text'];
         }
@@ -309,6 +454,15 @@ class GRWP_Global_Settings {
         }
         if ( isset( $input['filter_words'] ) ) {
             $sanitary_values['filter_words'] = $input['filter_words'];
+        }
+        if ( isset( $input['link_users_profiles'] ) ) {
+            $sanitary_values['link_users_profiles'] = $input['link_users_profiles'];
+        }
+        if ( isset( $input['hide_slider_arrows'] ) ) {
+            $sanitary_values['hide_slider_arrows'] = $input['hide_slider_arrows'];
+        }
+        if ( isset( $input['disable_loop_slider'] ) ) {
+            $sanitary_values['disable_loop_slider'] = $input['disable_loop_slider'];
         }
         if ( isset( $input['reviews_language_3'] ) ) {
             $sanitary_values['reviews_language_3'] = $input['reviews_language_3'];
@@ -329,6 +483,15 @@ class GRWP_Global_Settings {
         ?>
         <h2 id="display_settings"><?php 
         esc_html_e( 'Display settings', 'embedder-for-google-reviews' );
+        ?></h2>
+
+        <?php 
+    }
+
+    public function google_reviews_display_slider_info() {
+        ?>
+        <h2 id="slider_settings"><?php 
+        esc_html_e( 'Slider settings', 'embedder-for-google-reviews' );
         ?></h2>
 
         <?php 
@@ -425,6 +588,55 @@ class GRWP_Global_Settings {
             <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=minimum_rating&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
         </div>
 	    <?php 
+        ?>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Link to User's Google Profiles
+     * @return void
+     */
+    public function link_users_profiles_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+        <?php 
+        ?>
+            <div class="tooltip">
+        <?php 
+        ?>
+
+        <?php 
+        ?>
+            <input type="hidden"
+                   name="google_reviews_option_name[link_users_profiles]"
+                   id="link_users_profiles"
+                   value="1"
+            />
+
+            <input type="checkbox"
+                   name="google_reviews_option_name[link_users_profiles]"
+                   id="link_users_profiles"
+                   checked
+                   disabled
+            />
+        <?php 
+        ?>
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        ?>
+            <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=link_profile&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
         ?>
 
         <?php 
@@ -664,20 +876,6 @@ class GRWP_Global_Settings {
         <?php 
     }
 
-    public function slide_duration_callback() {
-        $slide_duration = $this->google_reviews_options['slide_duration'] ?? '';
-        if ( empty( $slide_duration ) ) {
-            $slide_duration = '1500';
-        }
-        ?>
-
-        <input type="number" min="50" max="9999" step="50" name="google_reviews_option_name[slide_duration]" value="<?php 
-        echo esc_attr( $slide_duration );
-        ?>">
-
-        <?php 
-    }
-
     /**
      * Echo language field
      */
@@ -751,14 +949,6 @@ class GRWP_Global_Settings {
         }
         ?>
         </select> <?php 
-    }
-
-    public function reviews_instructions_section() {
-        ?>
-        <h2 id="embedding_instructions"><?php 
-        esc_html_e( 'Embedding instructions', 'embedder-for-google-reviews' );
-        ?></h2>
-        <?php 
     }
 
     /**
