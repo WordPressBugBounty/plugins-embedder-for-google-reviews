@@ -5,7 +5,7 @@ Tested up to: 6.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 Tags: google reviews, google, reviews, rating, reviews plugin
 
 This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
@@ -220,15 +220,21 @@ It depends on if the reviews are positive or negative.
 Negative reviews can seriously impact your business by decreasing your conversion rate, customer experience, and sales.
 Statistically, 86% of customers hesitate to purchase from companies with negative reviews.
 
+= How can I report security bugs? =
+
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.]( https://patchstack.com/database/vdp/9e5fbc2e-facd-423f-b519-e537c29c5cd5 )
+
 == Screenshots ==
 1. Sample design of WP Google Review Slider #1
 2. Sample design of WP Google Review Slider #2
 3. Sample design of WP Google Review Slider #3
-4. SSample design of Google Reviews Widget #4
+4. Sample design of Google Reviews Widget #4
 5. Google Reviews Plugin backend view #1
 6. Google Reviews Plugin backend #2
 
 == Changelog ==
+= 1.7.3 =
+* Added patchstack security disclaimer
 = 1.7.2 =
 * Changed error handling for empty search results
 = 1.7.1 =
