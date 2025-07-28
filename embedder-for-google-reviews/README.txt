@@ -5,7 +5,7 @@ Tested up to: 6.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 Tags: google reviews, google, reviews, rating, reviews plugin
 
 This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
@@ -229,6 +229,8 @@ Statistically, 86% of customers hesitate to purchase from companies with negativ
 6. Google Reviews Plugin backend #2
 
 == Changelog ==
+= 1.7.2 =
+* Changed error handling for empty search results
 = 1.7.1 =
 * Checked WP 6.8 compatibility
 * Fixed freemius/tastewp issue
