@@ -30,13 +30,20 @@ class GRWP_Google_Reviews_Admin {
         $this->dir = plugin_dir_path( __FILE__ );
         add_action( 'admin_menu', array($this, 'gr_add_plugin_pages') );
         add_action( 'admin_init', array($this, 'google_reviews_page_init') );
-        // deprecated
-        //new GRWP_Free_API_Service();
         // newest version
         new GRWP_Free_API_Service();
         $this->plugin_name = $plugin_name;
         $this->version = $version;
         require_once $this->dir . '../public/includes/allowed-html.php';
+    }
+
+    /**
+     * Function to activate wp cron job to pull reviews automatically, if not already existing
+     */
+    public function wp_cron_activate() {
+        if ( !wp_next_scheduled( 'get_google_reviews' ) ) {
+            wp_schedule_event( time(), 'weekly', 'get_google_reviews' );
+        }
     }
 
     /**
