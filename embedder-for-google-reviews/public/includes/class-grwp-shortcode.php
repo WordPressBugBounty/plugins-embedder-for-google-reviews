@@ -144,11 +144,8 @@ class GRWP_Shortcode {
             if ( version_compare( $activation_version, '1.6.6', '<=') ) {
                 $txt = 'https://reviewsembedder.com';
             }
-            else if ( version_compare( $activation_version, '1.7.5', '<=') ) {
+            else if ( version_compare( $activation_version, '1.7.6', '<=') ) {
                 $txt = 'Google Reviews WordPress Plugin';
-            }
-            else {
-                // for future versions, if needed
             }
         }
 
@@ -157,9 +154,10 @@ class GRWP_Shortcode {
             return $slider->render( $style_type, $link_user_profiles, $max_reviews, $show_place_info, $txt );
         }
 
-		elseif ( $widget_type === 'badge' ) {
-			$badge = new GRWP_Reviews_Widget_Badge();
-			return $badge->render( $link_user_profiles, $max_reviews, $txt );
+		elseif ( $widget_type === 'badge' ) {     
+            $badge = new GRWP_Reviews_Widget_Badge();
+            return $badge->render( $link_user_profiles, $max_reviews, $txt );
+        
 		}
 
         $grid = new GRWP_Reviews_Widget_Grid();

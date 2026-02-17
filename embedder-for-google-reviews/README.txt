@@ -1,11 +1,11 @@
 === Embedder for Google Reviews ===
-Contributors: paretodigital, googlereviewsplugin
+Contributors: paretodigital, googlereviewsplugin, freemius
 Tags: google reviews, google reviews plugin, google reviews widget, google reviews block, google reviews slider
-Tested up to: 6.9
+Tested up to: 6.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.7.5
+Stable tag: 1.7.6
 Tags: google reviews, google, reviews, rating, reviews plugin
 
 This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
@@ -233,6 +233,9 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 6. Google Reviews Plugin backend #2
 
 == Changelog ==
+= 1.7.6 =
+* Upgraded Freemius SDK
+* Bugfix: license activation
 = 1.7.5 =
 * Fixed issue with reviews not being pulled
 * Upgraded Freemius SDK
