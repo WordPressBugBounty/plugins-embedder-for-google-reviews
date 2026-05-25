@@ -1,7 +1,7 @@
 === Embedder for Google Reviews ===
 Contributors: paretodigital, googlereviewsplugin, freemius
 Tags: google reviews, google reviews plugin, google reviews widget, google reviews block, google reviews slider
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -27,9 +27,9 @@ The free version of the Google Reviews WordPress plugin has different styles and
 
 **➡ Pull your Google Reviews** from Google My Business / Google Business Profile
 
-**➡ Update reviews automatically**
+**➡ Update reviews automatically (PRO only)**
 
-**➡ Displaying Google Reviews** as Slider or Grid
+**➡ Display your Google Reviews** as Slider or Grid
 
 **➡ Choose** from 8 different designs
 
@@ -67,6 +67,8 @@ The premium version also includes additional premium settings with more customiz
 The Google Review Widget has a special word filter that enables you to search for powerful and positive words amongst all the reviews and filter Google places reviews by rating option, which will only display reviews with 5 or 4-stars.
 
 ⭐ **Pull ALL reviews of a business, instead of only 20**
+
+⭐ **Update your reviews automatically**
 
 ⭐ **Get access to additional premium designs** - The premium package contains different and valuable tools to design further and customize your widgets for Google Reviews more easily.
 
