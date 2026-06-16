@@ -5,7 +5,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.7.6
+Stable tag: 1.7.7
 Tags: google reviews, google, reviews, rating, reviews plugin
 
 This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
@@ -27,9 +27,9 @@ The free version of the Google Reviews WordPress plugin has different styles and
 
 **➡ Pull your Google Reviews** from Google My Business / Google Business Profile
 
-**➡ Update reviews automatically (PRO only)**
+**➡ Update reviews automatically**
 
-**➡ Display your Google Reviews** as Slider or Grid
+**➡ Displaying Google Reviews** as Slider or Grid
 
 **➡ Choose** from 8 different designs
 
@@ -67,8 +67,6 @@ The premium version also includes additional premium settings with more customiz
 The Google Review Widget has a special word filter that enables you to search for powerful and positive words amongst all the reviews and filter Google places reviews by rating option, which will only display reviews with 5 or 4-stars.
 
 ⭐ **Pull ALL reviews of a business, instead of only 20**
-
-⭐ **Update your reviews automatically**
 
 ⭐ **Get access to additional premium designs** - The premium package contains different and valuable tools to design further and customize your widgets for Google Reviews more easily.
 
@@ -235,6 +233,10 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 6. Google Reviews Plugin backend #2
 
 == Changelog ==
+= 1.7.7 =
+* Bugfix: only load admin styles on plugin pages
+* Upgraded Freemius SDK
+* Dashboard redesign
 = 1.7.6 =
 * Upgraded Freemius SDK
 * Bugfix: license activation

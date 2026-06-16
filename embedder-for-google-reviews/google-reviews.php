@@ -9,7 +9,7 @@
  * Plugin Name:       Embedder for Google Reviews
  * Plugin URI:        https://reviewsembedder.com
  * Description:       This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
- * Version:           1.7.6
+ * Version:           1.7.7
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Author:            ReviewsEmbedder.com
@@ -34,25 +34,26 @@ if ( function_exists( 'grwp_fs' ) ) {
                 // Include Freemius SDK.
                 require_once dirname( __FILE__ ) . '/freemius/start.php';
                 $grwp_fs = fs_dynamic_init( array(
-                    'id'              => '10211',
-                    'slug'            => 'embedder-for-google-reviews',
-                    'premium_slug'    => 'embedder-for-google-reviews-pro',
-                    'type'            => 'plugin',
-                    'public_key'      => 'pk_6823179f29a329a909c59a7a25a0a',
-                    'is_premium'      => false,
-                    'has_addons'      => false,
-                    'has_paid_plans'  => true,
-                    'trial'           => array(
+                    'id'               => '10211',
+                    'slug'             => 'embedder-for-google-reviews',
+                    'premium_slug'     => 'embedder-for-google-reviews-pro',
+                    'type'             => 'plugin',
+                    'public_key'       => 'pk_6823179f29a329a909c59a7a25a0a',
+                    'is_premium'       => false,
+                    'has_addons'       => false,
+                    'has_paid_plans'   => true,
+                    'trial'            => array(
                         'days'               => 14,
                         'is_require_payment' => true,
                     ),
-                    'has_affiliation' => 'all',
-                    'menu'            => array(
+                    'has_affiliation'  => 'all',
+                    'menu'             => array(
                         'slug'    => 'google-reviews',
                         'contact' => false,
                         'support' => false,
                     ),
-                    'is_live'         => true,
+                    'is_live'          => true,
+                    'is_org_compliant' => true,
                 ) );
             }
             return $grwp_fs;

@@ -52,6 +52,9 @@ class GRWP_Google_Reviews_Admin {
      * @since    1.0.0
      */
     public function enqueue_styles() {
+        if ( !$this->is_plugin_admin_page() ) {
+            return;
+        }
         wp_enqueue_style(
             'admin-' . $this->plugin_name,
             GR_PLUGIN_DIR_URL . 'dist/css/google-reviews-admin.css',
@@ -67,6 +70,9 @@ class GRWP_Google_Reviews_Admin {
      * @since    1.0.0
      */
     public function enqueue_scripts() {
+        if ( !$this->is_plugin_admin_page() ) {
+            return;
+        }
         wp_enqueue_script(
             'admin-' . $this->plugin_name,
             GR_PLUGIN_DIR_URL . 'dist/js/admin-bundle.js',
@@ -87,6 +93,16 @@ class GRWP_Google_Reviews_Admin {
                 'nonce'       => wp_create_nonce( 'grwp_nonce_action' ),
             ) );
         }
+    }
+
+    /**
+     * Check whether the current admin request belongs to this plugin.
+     *
+     * @return bool
+     */
+    private function is_plugin_admin_page() {
+        $page = ( isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '' );
+        return 'google-reviews' === $page || 'how-to-free-version' === $page || 'how-to-premium-version' === $page;
     }
 
     /**
