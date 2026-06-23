@@ -15,18 +15,23 @@ $allowed_html = [
         'referrerpolicy'    => [],
     ],
     'style'                     => [],
-    'div'                       => [
-        'class'                 => [],
-        'id'                    => [],
-        'data-swiper-autoplay'  => [],
+    'div'                        => [
+        'class'                  => [],
+        'id'                     => [],
+        'data-swiper-autoplay'   => [],
+        'data-grwp-show-more-rows' => [],
+        'data-grwp-load-more-rows' => [],
     ],
     'a' => [
         'href'      => [],
         'target'    => [],
-	    'class'     => []
+	    'class'     => [],
+	    'rel'       => [],
     ],
     'p' => [
         'id'    => [],
+        'class' => [],
+        'style' => [],
     ],
     'span' => [
         'class' => [],
@@ -60,6 +65,7 @@ $allowed_html = [
 	    'disabled'  => [],
 	    'title'     => [],
         'readonly'  => [],
+        'placeholder' => [],
     ],
     'textarea' => [
         'id'        => [],

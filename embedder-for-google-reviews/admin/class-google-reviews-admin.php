@@ -59,7 +59,7 @@ class GRWP_Google_Reviews_Admin {
             'admin-' . $this->plugin_name,
             GR_PLUGIN_DIR_URL . 'dist/css/google-reviews-admin.css',
             array(),
-            $this->version,
+            $this->asset_version( 'dist/css/google-reviews-admin.css' ),
             'all'
         );
     }
@@ -77,7 +77,7 @@ class GRWP_Google_Reviews_Admin {
             'admin-' . $this->plugin_name,
             GR_PLUGIN_DIR_URL . 'dist/js/admin-bundle.js',
             array('jquery'),
-            $this->version,
+            $this->asset_version( 'dist/js/admin-bundle.js' ),
             false
         );
         if ( isset( $this->google_reviews_options['reviews_language_3'] ) ) {
@@ -93,6 +93,21 @@ class GRWP_Google_Reviews_Admin {
                 'nonce'       => wp_create_nonce( 'grwp_nonce_action' ),
             ) );
         }
+    }
+
+    /**
+     * Cache-busting version for a built asset.
+     *
+     * Uses the file's modification time so a rebuilt bundle/stylesheet always
+     * gets a fresh URL (browsers won't serve a stale cached copy). Falls back
+     * to the plugin version if the file can't be found.
+     *
+     * @param string $relative_path Path under the plugin root, e.g. 'dist/js/admin-bundle.js'.
+     * @return string|int
+     */
+    private function asset_version( $relative_path ) {
+        $file = GR_BASE_PATH . $relative_path;
+        return ( file_exists( $file ) ? filemtime( $file ) : $this->version );
     }
 
     /**

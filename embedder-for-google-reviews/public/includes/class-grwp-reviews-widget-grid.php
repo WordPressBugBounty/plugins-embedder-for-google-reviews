@@ -30,10 +30,44 @@ class GRWP_Reviews_Widget_Grid
         $verified_svg = GR_PLUGIN_DIR_URL . 'dist/images/verified-badge.svg';
         $url = 'https://reviewsembedder.com';
 
+        // Global setting: hide company header overrides shortcode place_info attribute
+        if ( ! empty( $this->options['hide_company_header'] ) ) {
+            $show_place_info = false;
+        }
+
+
+        // Show-more button: number of review ROWS visible before "Load more".
+        // The cards-per-row count is responsive, so JS derives the visible card
+        // count from rows x columns and keeps it in sync on resize.
+        $show_more_attr = '';
+        $show_more_rows = 0;
+        if ( ! empty( $this->options['show_more_grid'] ) ) {
+            $show_more_rows = isset( $this->options['show_more_grid_initial'] ) && intval( $this->options['show_more_grid_initial'] ) > 0
+                ? intval( $this->options['show_more_grid_initial'] )
+                : 2;
+            $load_more_rows = isset( $this->options['show_more_grid_load_more_rows'] ) && intval( $this->options['show_more_grid_load_more_rows'] ) > 0
+                ? intval( $this->options['show_more_grid_load_more_rows'] )
+                : 2;
+            $show_more_attr = ' data-grwp-show-more-rows="' . esc_attr( $show_more_rows ) . '"'
+                . ' data-grwp-load-more-rows="' . esc_attr( $load_more_rows ) . '"';
+        }
+
+        // Number of cards that will actually be rendered (respecting max_reviews)
+        $total_cards = count( $this->reviews );
+        if ( $max_reviews && is_numeric( $max_reviews ) ) {
+            $total_cards = min( $total_cards, intval( $max_reviews ) );
+        }
+
+        // Truncated up front when "Show more" is active and there are extra cards.
+        // While truncated the "See all reviews" button stays hidden (see CSS);
+        // JS removes this class once every review has been revealed.
+        $truncated_class = ( $show_more_rows > 0 && $total_cards > $show_more_rows )
+            ? ' grwp-truncated'
+            : '';
 
 	    $stars = $this->get_total_stars();
 
-	    $output = sprintf('<div id="g-review" class="%s grwp_grid %s">', $style_type, $hide_date);
+	    $output = sprintf( '<div id="g-review" class="%s grwp_grid %s%s"%s>', $style_type, $hide_date, $truncated_class, $show_more_attr );
 
 		if ( $show_place_info ) {
 
@@ -77,15 +111,29 @@ class GRWP_Reviews_Widget_Grid
 
             $star_output = $this->get_star_output($review);
 
+            // Hide cards beyond the initial rows up front so they don't flash on load.
+            // Columns are unknown server-side, so assume one column (the safe minimum):
+            // never show more than intended; JS then reveals enough to fill each row.
+            $card_hidden_class = ( $show_more_rows > 0 && $count >= $show_more_rows )
+                ? ' grwp-card-hidden'
+                : '';
+
             ob_start();
-            require 'partials/grid/markup.php';
+            $markup_file = ( $style_type === 'layout_style-10' )
+                ? 'partials/grid/markup-style10.php'
+                : 'partials/grid/markup.php';
+            require $markup_file;
             $output .= ob_get_clean();
 
             $count++;
 
         }
 
-        $output .= '</div></div>';
+        $output .= '</div>';
+
+        $output .= $this->get_button_output();
+
+        $output .= '</div>';
 
         return wp_kses( $output, $this->allowed_html );
 

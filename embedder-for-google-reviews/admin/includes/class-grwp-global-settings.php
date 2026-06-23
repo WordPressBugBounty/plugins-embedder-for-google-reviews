@@ -11,6 +11,8 @@ class GRWP_Global_Settings {
         $this->add_api_settings();
         $this->add_display_settings();
         $this->add_slider_settings();
+        $this->add_grid_settings();
+        $this->add_legacy_settings();
     }
 
     /**
@@ -45,17 +47,6 @@ class GRWP_Global_Settings {
             'google_reviews_setting_section'
         );
         add_settings_field(
-            'show_dummy_content',
-            // id
-            /* translators: Show dummy content */
-            __( 'Show dummy content', 'embedder-for-google-reviews' ),
-            array($this, 'show_dummy_content_callback'),
-            // callback
-            $this->settings_slug,
-            // page
-            'google_reviews_setting_section'
-        );
-        add_settings_field(
             'show_verified',
             // id
             /* translators: Show dummy content */
@@ -82,7 +73,7 @@ class GRWP_Global_Settings {
             __( 'Layout type', 'embedder-for-google-reviews' ),
             array($this, 'style_2_callback'),
             $this->settings_slug,
-            'google_reviews_setting_section'
+            'google_reviews_legacy_setting_section'
         );
     }
 
@@ -153,16 +144,18 @@ class GRWP_Global_Settings {
             // callback
             $this->settings_slug
         );
-        add_settings_field(
-            'layout_style',
+        // second section, rendered as a side-by-side column on the Display
+        // Settings tab – groups text/number/url inputs separately from the
+        // plain Yes/No toggles in the section above, so each column's rows
+        // stay close in height (see google-reviews-admin.scss .grwp-two-col)
+        add_settings_section(
+            'google_reviews_style_layout_setting_section_inputs',
             // id
-            __( 'Design type', 'embedder-for-google-reviews' ),
-            array($this, 'layout_style_callback'),
-            $this->settings_slug,
-            'google_reviews_style_layout_setting_section',
-            [
-                'class' => 'layout_style',
-            ]
+            '',
+            // title
+            '__return_false',
+            // callback
+            $this->settings_slug
         );
         add_settings_field(
             'filter_below_5_stars',
@@ -173,7 +166,7 @@ class GRWP_Global_Settings {
             // callback
             $this->settings_slug,
             // page
-            'google_reviews_style_layout_setting_section'
+            'google_reviews_style_layout_setting_section_inputs'
         );
         add_settings_field(
             'exclude_reviews_without_text',
@@ -217,8 +210,164 @@ class GRWP_Global_Settings {
             // callback
             $this->settings_slug,
             // page
+            'google_reviews_style_layout_setting_section_inputs'
+        );
+        add_settings_field(
+            'hide_company_header',
+            // id
+            /* translators: Hide company header section */
+            __( 'Hide company header section', 'embedder-for-google-reviews' ),
+            array($this, 'hide_company_header_callback'),
+            // callback
+            $this->settings_slug,
+            // page
             'google_reviews_style_layout_setting_section'
         );
+        add_settings_field(
+            'show_dummy_content',
+            // id
+            /* translators: Show dummy content */
+            __( 'Show dummy content', 'embedder-for-google-reviews' ),
+            array($this, 'show_dummy_content_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+        add_settings_field(
+            'hide_profile_picture',
+            // id
+            /* translators: Hide reviewer profile picture */
+            __( 'Hide reviewer profile picture', 'embedder-for-google-reviews' ),
+            array($this, 'hide_profile_picture_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+        add_settings_field(
+            'hide_rating_text',
+            // id
+            /* translators: Hide rating text */
+            __( 'Hide rating text', 'embedder-for-google-reviews' ),
+            array($this, 'hide_rating_text_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+        add_settings_field(
+            'use_safe_fallback_font',
+            // id
+            /* translators: Use safe fallback font */
+            __( 'Use safe fallback font', 'embedder-for-google-reviews' ),
+            array($this, 'use_safe_fallback_font_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+        add_settings_field(
+            'button_url',
+            // id
+            /* translators: Button URL */
+            __( 'Button URL', 'embedder-for-google-reviews' ),
+            array($this, 'button_url_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section_inputs'
+        );
+        add_settings_field(
+            'button_text',
+            // id
+            /* translators: Button text */
+            __( 'Button text', 'embedder-for-google-reviews' ),
+            array($this, 'button_text_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section_inputs'
+        );
+        add_settings_field(
+            'disable_box_shadow',
+            // id
+            /* translators: Remove card box shadows */
+            __( 'Remove card box shadows', 'embedder-for-google-reviews' ),
+            array($this, 'disable_box_shadow_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+    }
+
+    /**
+     * Grid settings
+     * @return void
+     */
+    private function add_grid_settings() {
+        add_settings_section(
+            'google_reviews_grid_setting_section',
+            // id
+            '',
+            // title
+            array($this, 'google_reviews_display_grid_info'),
+            // callback
+            $this->settings_slug
+        );
+        add_settings_field(
+            'show_more_grid',
+            // id
+            /* translators: Show "Load more" button on grid */
+            __( 'Show "Load more" button', 'embedder-for-google-reviews' ),
+            array($this, 'show_more_grid_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_grid_setting_section'
+        );
+        add_settings_field(
+            'show_more_grid_initial',
+            // id
+            /* translators: Initially visible review rows (grid load-more) */
+            __( 'Initially visible review rows', 'embedder-for-google-reviews' ),
+            array($this, 'show_more_grid_initial_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_grid_setting_section'
+        );
+        add_settings_field(
+            'show_more_grid_load_more_rows',
+            // id
+            /* translators: Number of rows revealed per "Load more" click (grid load-more) */
+            __( 'Load more rows', 'embedder-for-google-reviews' ),
+            array($this, 'show_more_grid_load_more_rows_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_grid_setting_section'
+        );
+        add_settings_field(
+            'show_more_grid_text',
+            // id
+            /* translators: "Load more" button text (grid load-more) */
+            __( '"Load more" button text', 'embedder-for-google-reviews' ),
+            array($this, 'show_more_grid_text_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_grid_setting_section'
+        );
+    }
+
+    public function google_reviews_display_grid_info() {
+        ?>
+        <h2 id="grid_settings"><?php 
+        esc_html_e( 'Grid settings', 'embedder-for-google-reviews' );
+        ?></h2>
+        <?php 
     }
 
     /**
@@ -430,6 +579,39 @@ class GRWP_Global_Settings {
         if ( isset( $input['filter_words'] ) ) {
             $sanitary_values['filter_words'] = $input['filter_words'];
         }
+        if ( isset( $input['hide_company_header'] ) ) {
+            $sanitary_values['hide_company_header'] = sanitize_text_field( $input['hide_company_header'] );
+        }
+        if ( isset( $input['hide_profile_picture'] ) ) {
+            $sanitary_values['hide_profile_picture'] = sanitize_text_field( $input['hide_profile_picture'] );
+        }
+        if ( isset( $input['hide_rating_text'] ) ) {
+            $sanitary_values['hide_rating_text'] = sanitize_text_field( $input['hide_rating_text'] );
+        }
+        if ( isset( $input['use_safe_fallback_font'] ) ) {
+            $sanitary_values['use_safe_fallback_font'] = sanitize_text_field( $input['use_safe_fallback_font'] );
+        }
+        if ( isset( $input['button_url'] ) ) {
+            $sanitary_values['button_url'] = esc_url_raw( $input['button_url'] );
+        }
+        if ( isset( $input['button_text'] ) ) {
+            $sanitary_values['button_text'] = sanitize_text_field( $input['button_text'] );
+        }
+        if ( isset( $input['disable_box_shadow'] ) ) {
+            $sanitary_values['disable_box_shadow'] = sanitize_text_field( $input['disable_box_shadow'] );
+        }
+        if ( isset( $input['show_more_grid'] ) ) {
+            $sanitary_values['show_more_grid'] = sanitize_text_field( $input['show_more_grid'] );
+        }
+        if ( isset( $input['show_more_grid_initial'] ) ) {
+            $sanitary_values['show_more_grid_initial'] = absint( $input['show_more_grid_initial'] );
+        }
+        if ( isset( $input['show_more_grid_load_more_rows'] ) ) {
+            $sanitary_values['show_more_grid_load_more_rows'] = absint( $input['show_more_grid_load_more_rows'] );
+        }
+        if ( isset( $input['show_more_grid_text'] ) ) {
+            $sanitary_values['show_more_grid_text'] = sanitize_text_field( $input['show_more_grid_text'] );
+        }
         if ( isset( $input['link_users_profiles'] ) ) {
             $sanitary_values['link_users_profiles'] = $input['link_users_profiles'];
         }
@@ -487,6 +669,170 @@ class GRWP_Global_Settings {
                id="show_dummy_content"
             <?php 
         echo esc_attr( ( !empty( $this->google_reviews_options['show_dummy_content'] ) ? 'checked' : '' ) );
+        ?>
+        >
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Hide reviewer profile picture
+     * @return void
+     */
+    public function hide_profile_picture_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="checkbox"
+               name="google_reviews_option_name[hide_profile_picture]"
+               value="1"
+               id="hide_profile_picture"
+            <?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['hide_profile_picture'] ) ? 'checked' : '' ) );
+        ?>
+        >
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Hide rating text
+     * @return void
+     */
+    public function hide_rating_text_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="checkbox"
+               name="google_reviews_option_name[hide_rating_text]"
+               value="1"
+               id="hide_rating_text"
+            <?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['hide_rating_text'] ) ? 'checked' : '' ) );
+        ?>
+        >
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Use safe fallback font
+     * @return void
+     */
+    public function use_safe_fallback_font_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="checkbox"
+               name="google_reviews_option_name[use_safe_fallback_font]"
+               value="1"
+               id="use_safe_fallback_font"
+            <?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['use_safe_fallback_font'] ) ? 'checked' : '' ) );
+        ?>
+        >
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Button URL, shown as a button below each widget when not empty
+     * @return void
+     */
+    public function button_url_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="url"
+               name="google_reviews_option_name[button_url]"
+               id="button_url"
+               placeholder="https://"
+               value="<?php 
+        echo esc_url( ( !empty( $this->google_reviews_options['button_url'] ) ? $this->google_reviews_options['button_url'] : '' ) );
+        ?>"
+        >
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Button text, shown on the button rendered below each widget
+     * @return void
+     */
+    public function button_text_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="text"
+               name="google_reviews_option_name[button_text]"
+               id="button_text"
+               placeholder="<?php 
+        esc_attr_e( 'See all Reviews', 'embedder-for-google-reviews' );
+        ?>"
+               value="<?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['button_text'] ) ? $this->google_reviews_options['button_text'] : '' ) );
+        ?>"
+        >
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Remove card box shadows
+     * @return void
+     */
+    public function disable_box_shadow_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="checkbox"
+               name="google_reviews_option_name[disable_box_shadow]"
+               value="1"
+               id="disable_box_shadow"
+            <?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['disable_box_shadow'] ) ? 'checked' : '' ) );
         ?>
         >
 
@@ -748,6 +1094,158 @@ class GRWP_Global_Settings {
     }
 
     /**
+     * Hide company header section
+     * @return void
+     */
+    public function hide_company_header_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="checkbox"
+               name="google_reviews_option_name[hide_company_header]"
+               value="1"
+               id="hide_company_header"
+            <?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['hide_company_header'] ) ? 'checked' : '' ) );
+        ?>
+        >
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Show "Load more" button on grid widget
+     * @return void
+     */
+    public function show_more_grid_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <input type="checkbox"
+               name="google_reviews_option_name[show_more_grid]"
+               value="1"
+               id="show_more_grid"
+            <?php 
+        echo esc_attr( ( !empty( $this->google_reviews_options['show_more_grid'] ) ? 'checked' : '' ) );
+        ?>
+        >
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Number of review rows visible before "Load more" is clicked
+     * @return void
+     */
+    public function show_more_grid_initial_callback() {
+        global $allowed_html;
+        $value = ( isset( $this->google_reviews_options['show_more_grid_initial'] ) ? intval( $this->google_reviews_options['show_more_grid_initial'] ) : 2 );
+        if ( $value < 1 ) {
+            $value = 2;
+        }
+        ob_start();
+        ?>
+
+        <input type="number"
+               name="google_reviews_option_name[show_more_grid_initial]"
+               id="show_more_grid_initial"
+               min="1"
+               step="1"
+               value="<?php 
+        echo esc_attr( $value );
+        ?>"
+        >
+        <p class="description" style="margin-top:6px;">
+            <?php 
+        esc_html_e( 'Number of fully-filled review rows shown before "Load more" is clicked. The number of cards per row adapts to the screen width. Only applies when "Show \'Load more\' button" is enabled above.', 'embedder-for-google-reviews' );
+        ?>
+        </p>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Number of additional review rows revealed each time "Load more" is clicked
+     * @return void
+     */
+    public function show_more_grid_load_more_rows_callback() {
+        global $allowed_html;
+        $value = ( isset( $this->google_reviews_options['show_more_grid_load_more_rows'] ) ? intval( $this->google_reviews_options['show_more_grid_load_more_rows'] ) : 2 );
+        if ( $value < 1 ) {
+            $value = 2;
+        }
+        ob_start();
+        ?>
+
+        <input type="number"
+               name="google_reviews_option_name[show_more_grid_load_more_rows]"
+               id="show_more_grid_load_more_rows"
+               min="1"
+               step="1"
+               value="<?php 
+        echo esc_attr( $value );
+        ?>"
+        >
+        <p class="description" style="margin-top:6px;">
+            <?php 
+        esc_html_e( 'Number of additional fully-filled review rows revealed each time "Load more" is clicked. Only applies when "Show \'Load more\' button" is enabled above.', 'embedder-for-google-reviews' );
+        ?>
+        </p>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * Text shown on the grid "Load more" button
+     * @return void
+     */
+    public function show_more_grid_text_callback() {
+        global $allowed_html;
+        $value = ( isset( $this->google_reviews_options['show_more_grid_text'] ) && $this->google_reviews_options['show_more_grid_text'] !== '' ? $this->google_reviews_options['show_more_grid_text'] : __( 'Show more', 'embedder-for-google-reviews' ) );
+        ob_start();
+        ?>
+
+        <input type="text"
+               name="google_reviews_option_name[show_more_grid_text]"
+               id="show_more_grid_text"
+               value="<?php 
+        echo esc_attr( $value );
+        ?>"
+        >
+        <p class="description" style="margin-top:6px;">
+            <?php 
+        esc_html_e( 'Only applies when "Show \'Load more\' button" is enabled above.', 'embedder-for-google-reviews' );
+        ?>
+        </p>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
      * Echo layout option field
      */
     public function style_2_callback() {
@@ -816,22 +1314,54 @@ class GRWP_Global_Settings {
         <?php 
     }
 
+    /**
+     * Legacy settings tab (Layout type + Design type)
+     * Kept for users who rely on the saved values without shortcode attributes.
+     */
+    private function add_legacy_settings() {
+        add_settings_section(
+            'google_reviews_legacy_setting_section',
+            '',
+            array($this, 'google_reviews_display_legacy_info'),
+            $this->settings_slug
+        );
+        add_settings_field(
+            'layout_style',
+            __( 'Design type', 'embedder-for-google-reviews' ),
+            array($this, 'layout_style_callback'),
+            $this->settings_slug,
+            'google_reviews_legacy_setting_section'
+        );
+    }
+
+    public function google_reviews_display_legacy_info() {
+        ?>
+        <h2 id="legacy_settings"><?php 
+        esc_html_e( 'Legacy options', 'embedder-for-google-reviews' );
+        ?></h2>
+        <p style="color:#64748b;font-size:.85rem;margin:0 0 8px;">
+            <?php 
+        esc_html_e( 'These settings apply globally for users who embed the widget without shortcode attributes. New installations should use the shortcode attributes instead.', 'embedder-for-google-reviews' );
+        ?>
+        </p>
+        <?php 
+    }
+
     public function layout_style_callback() {
         $layout_style = ( isset( $this->google_reviews_options['layout_style'] ) ? $this->google_reviews_options['layout_style'] : '' );
         if ( empty( $layout_style ) ) {
-            $layout_style = '7';
+            $layout_style = 'layout_style-7';
         }
         ?>
-
         <select name="google_reviews_option_name[layout_style]" id="layout_style">
             <?php 
-        for ($i = 1; $i <= 8; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             ?>
                 <option
                     <?php 
             selected( $layout_style, 'layout_style-' . $i );
             ?>
-                        value="<?php 
+                    value="<?php 
             echo esc_attr( sprintf( 'layout_style-%s', $i ) );
             ?>"
                 >
@@ -847,7 +1377,6 @@ class GRWP_Global_Settings {
         }
         ?>
         </select>
-
         <?php 
     }
 
