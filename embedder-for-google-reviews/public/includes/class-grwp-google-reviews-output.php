@@ -32,6 +32,8 @@ class GRWP_Google_Reviews_Output {
 
     protected $rating_formatted = 5.0;
 
+    protected $rating_value = 5.0;
+
     protected $total_reviews = 0;
 
     protected $place_title = '';
@@ -66,6 +68,7 @@ class GRWP_Google_Reviews_Output {
         if ( $place_info ) {
             $place_info_arr = json_decode( $place_info, true );
             $this->rating_rounded = ( isset( $place_info_arr['rating'] ) ? intval( round( $place_info_arr['rating'] ) ) : 0 );
+            $this->rating_value = ( isset( $place_info_arr['rating'] ) ? floatval( $place_info_arr['rating'] ) : 5.0 );
             $this->rating_formatted = ( isset( $place_info_arr['rating'] ) ? number_format_i18n( $place_info_arr['rating'], 1 ) : 'N/A' );
             $this->total_reviews = ( isset( $place_info_arr['reviews'] ) ? number_format_i18n( $place_info_arr['reviews'] ) : 'N/A' );
             $this->place_title = ( isset( $place_info_arr['title'] ) ? $place_info_arr['title'] : 'Unknown Title' );
@@ -90,15 +93,264 @@ class GRWP_Google_Reviews_Output {
     }
 
     /**
-     * Get button output, linking to the configured button URL, if any
+     * Map the numeric rating to a human readable label (Trustpilot style),
+     * used by the compact company header.
+     * @return string
+     */
+    protected function get_rating_label() {
+        $rating = $this->rating_value;
+        if ( $rating >= 4.5 ) {
+            return __( 'Excellent', 'embedder-for-google-reviews' );
+        }
+        if ( $rating >= 3.5 ) {
+            return __( 'Very good', 'embedder-for-google-reviews' );
+        }
+        if ( $rating >= 2.5 ) {
+            return __( 'Average', 'embedder-for-google-reviews' );
+        }
+        if ( $rating >= 1.5 ) {
+            return __( 'Poor', 'embedder-for-google-reviews' );
+        }
+        return __( 'Bad', 'embedder-for-google-reviews' );
+    }
+
+    /**
+     * Render the company header for the slider/grid widgets, honouring the
+     * selected header type (Header Settings tab). Returns an empty string when
+     * the header should not be shown.
+     *
+     * @param bool   $show_place_info Whether the widget requested the header.
+     * @param bool   $show_verified   Whether to render the 'Verified by' badge.
+     * @param string $txt             Alt text for the verified badge image.
+     * @param string $default_title   Placeholder business title fallback.
+     * @return string
+     */
+    protected function render_company_header(
+        $show_place_info,
+        $show_verified,
+        $txt = '',
+        $default_title = 'Lorem Ipsum Business',
+        $is_slider = false
+    ) {
+        $header_type = $this->effective_header_type( $show_place_info );
+        if ( $header_type === '' ) {
+            return '';
+        }
+        $this->place_title = ( $this->place_title === '' ? $default_title : $this->place_title );
+        if ( $header_type === 'compact' || $header_type === 'compact_plain' ) {
+            return $this->get_compact_header(
+                $is_slider,
+                $header_type === 'compact_plain',
+                $show_verified,
+                $txt
+            );
+        }
+        return $this->get_standard_header( $show_verified, $txt );
+    }
+
+    /**
+     * The header type that will actually render for a widget, accounting for the
+     * place_info gate and the "none → default" override when a shortcode
+     * explicitly requests the header. Returns '' when no header is shown.
+     *
+     * @param bool $show_place_info
+     * @return string '', 'standard', 'compact' or 'compact_plain'.
+     */
+    protected function effective_header_type( $show_place_info ) {
+        if ( !$show_place_info ) {
+            return '';
+        }
+        $header_type = $this->resolve_header_type();
+        // 'none' disables the header by default, but an explicit place_info="true"
+        // shortcode attribute still invokes it — fall back to the default style.
+        if ( $header_type === 'none' ) {
+            $header_type = grwp_default_header_type();
+        }
+        return $header_type;
+    }
+
+    /**
+     * Resolve the effective header type. Available to free and premium users
+     * alike; the front-end simply renders the saved value, falling back to the
+     * version-aware default when none is set.
+     *
+     * @return string One of 'standard', 'compact', 'compact_plain', 'none'.
+     */
+    protected function resolve_header_type() {
+        return ( isset( $this->options['header_type'] ) ? $this->options['header_type'] : grwp_default_header_type() );
+    }
+
+    /**
+     * Whether the compact header is active and shown for this widget. When true
+     * the standalone "See all reviews" button is moved into the header, so the
+     * widget should not also render it at the bottom.
+     *
+     * @param bool $show_place_info
+     * @return bool
+     */
+    protected function compact_header_active( $show_place_info ) {
+        return in_array( $this->effective_header_type( $show_place_info ), array('compact', 'compact_plain'), true );
+    }
+
+    /**
+     * Standard company header ("Overall rating out of X Google reviews").
+     * @return string
+     */
+    protected function get_standard_header( $show_verified, $txt ) {
+        $stars = $this->get_total_stars();
+        $output = '<div class="grwp_header">';
+        $output .= '<div class="grwp_header-inner">';
+        $output .= sprintf( '<h3 class="grwp_business-title">%s</h3>', $this->place_title );
+        $output .= sprintf( 
+            '<span class="grwp_total-rating">%s</span><span class="grwp_5_stars">%s</span>',
+            $this->rating_formatted,
+            /* translators: out of 5 stars */
+            __( 'Out of 5 stars', 'embedder-for-google-reviews' )
+         );
+        $output .= $stars;
+        $overall = sprintf( 
+            /* translators: %s: total reviews */
+            __( 'Overall rating out of %s Google reviews', 'embedder-for-google-reviews' ),
+            $this->total_reviews
+         );
+        // Keep the badge inside the heading so it sits inline after the text and
+        // only wraps to the next line when there isn't enough width.
+        if ( $show_verified ) {
+            $overall .= ' ' . $this->get_verified_badge( $txt );
+        }
+        $output .= '<h3 class="grwp_overall">' . $overall . '</h3>';
+        $output .= '</div></div>';
+        return $output;
+    }
+
+    /**
+     * Shared "Verified by" badge: a blue check (as in design 10) that reveals a
+     * tooltip with the label and plugin icon on hover/focus, linking to
+     * reviewsembedder.com. Used by both the standard and compact headers.
+     * @return string
+     */
+    protected function get_verified_badge( $txt = '' ) {
+        $verified_svg = GR_PLUGIN_DIR_URL . 'dist/images/verified-badge.svg';
+        /* translators: 'Verified by' badge */
+        $verified_label = __( 'Verified by', 'embedder-for-google-reviews' );
+        return sprintf(
+            '<span class="grwp_verified-badge"><a href="%1$s" target="_blank" rel="noopener noreferrer" aria-label="%2$s"><span class="grwp_verified-badge-check"></span><span class="grwp_verified-badge-tip">%3$s <img class="grwp_verified-badge-tip-icon" src="%4$s" alt="%5$s" /></span></a></span>',
+            'https://reviewsembedder.com',
+            esc_attr( $verified_label ),
+            esc_html( $verified_label ),
+            esc_url( $verified_svg ),
+            esc_attr( $txt )
+        );
+    }
+
+    /**
+     * Compact company header (Design 1): Google logo, rating label, stars,
+     * rating, review count and an optional "Write a review" button.
+     * @return string
+     */
+    protected function get_compact_header(
+        $is_slider = false,
+        $plain = false,
+        $show_verified = false,
+        $txt = ''
+    ) {
+        $logo = GR_PLUGIN_DIR_URL . 'dist/images/google-logo-svg.svg';
+        $stars = $this->get_total_stars();
+        $label = $this->get_rating_label();
+        // Slider cards are inset from the container edge by their per-slide
+        // margins, so the slider header gets matching side margins to align.
+        $slider_class = ( $is_slider ? ' grwp_header--slider' : '' );
+        // Plain variant: drop the bar background, border and shadow.
+        $plain_class = ( $plain ? ' grwp_compact--plain' : '' );
+        $output = '<div class="grwp_header grwp_header--compact' . $slider_class . '">';
+        $output .= '<div class="grwp_compact' . $plain_class . '">';
+        $output .= '<div class="grwp_compact-info">';
+        $output .= sprintf( '<img class="grwp_compact-logo" src="%s" alt="Google" width="22" height="22" />', esc_url( $logo ) );
+        $output .= sprintf( '<span class="grwp_compact-label">%s</span>', esc_html( $label ) );
+        $output .= sprintf( '<span class="grwp_compact-stars">%s</span>', $stars );
+        $output .= sprintf( '<span class="grwp_compact-rating">%s</span>', esc_html( $this->rating_formatted ) );
+        $output .= sprintf( '<span class="grwp_compact-count">%s</span>', sprintf( 
+            /* translators: %s: total number of reviews */
+            esc_html__( '%s reviews', 'embedder-for-google-reviews' ),
+            esc_html( $this->total_reviews )
+         ) );
+        if ( $show_verified ) {
+            $output .= $this->get_verified_badge( $txt );
+        }
+        $output .= '</div>';
+        $button_url = $this->get_button_url();
+        if ( $button_url !== '' ) {
+            $output .= sprintf( '<a class="grwp_compact-write" href="%s" target="_blank" rel="noopener noreferrer">%s</a>', esc_url( $button_url ), esc_html( $this->get_button_text() ) );
+        }
+        $output .= '</div></div>';
+        return $output;
+    }
+
+    /**
+     * Resolve the effective button link target (Display Settings → "Button").
+     * Installs saved before this setting existed are migrated on read: a
+     * configured custom URL maps to 'custom', otherwise no button is shown.
+     *
+     * @return string One of 'reviews_google', 'write_review', 'custom', 'none'.
+     */
+    protected function get_button_type() {
+        if ( !empty( $this->options['button_type'] ) ) {
+            return $this->options['button_type'];
+        }
+        return ( !empty( $this->options['button_url'] ) ? 'custom' : 'write_review' );
+    }
+
+    /**
+     * Resolve the button URL for the selected link target. The Google modes
+     * build the URL from the saved place_id and return '' when it is missing
+     * (hide-if-empty), so a broken link is never rendered.
+     *
+     * @return string
+     */
+    protected function get_button_url() {
+        $place_id = ( !empty( $this->options['serp_place_id'] ) ? $this->options['serp_place_id'] : '' );
+        switch ( $this->get_button_type() ) {
+            case 'reviews_google':
+                return ( $place_id !== '' ? 'https://search.google.com/local/reviews?placeid=' . rawurlencode( $place_id ) : '' );
+            case 'write_review':
+                return ( $place_id !== '' ? 'https://search.google.com/local/writereview?placeid=' . rawurlencode( $place_id ) : '' );
+            case 'custom':
+                return ( !empty( $this->options['button_url'] ) ? $this->options['button_url'] : '' );
+            case 'none':
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Text for the button. A custom text always wins; otherwise the default
+     * depends on the selected link target.
+     * @return string
+     */
+    protected function get_button_text() {
+        if ( !empty( $this->options['button_text'] ) ) {
+            return $this->options['button_text'];
+        }
+        switch ( $this->get_button_type() ) {
+            case 'write_review':
+                return __( 'Write a review', 'embedder-for-google-reviews' );
+            case 'reviews_google':
+                return __( 'View on Google', 'embedder-for-google-reviews' );
+            default:
+                return __( 'See all Reviews', 'embedder-for-google-reviews' );
+        }
+    }
+
+    /**
+     * Get button output, linking to the resolved button URL, if any
      * @return string
      */
     protected function get_button_output() {
-        if ( empty( $this->options['button_url'] ) ) {
+        $button_url = $this->get_button_url();
+        if ( $button_url === '' ) {
             return '';
         }
-        $button_text = ( !empty( $this->options['button_text'] ) ? $this->options['button_text'] : __( 'See all Reviews', 'embedder-for-google-reviews' ) );
-        return sprintf( '<div class="grwp_button-wrapper"><a class="grwp_button" href="%s" target="_blank" rel="noopener noreferrer">%s</a></div>', esc_url( $this->options['button_url'] ), esc_html( $button_text ) );
+        return sprintf( '<div class="grwp_button-wrapper"><a class="grwp_button" href="%s" target="_blank" rel="noopener noreferrer">%s</a></div>', esc_url( $button_url ), esc_html( $this->get_button_text() ) );
     }
 
     /**

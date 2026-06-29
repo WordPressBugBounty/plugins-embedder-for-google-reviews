@@ -9,7 +9,7 @@
  * Plugin Name:       Embedder for Google Reviews
  * Plugin URI:        https://reviewsembedder.com
  * Description:       This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
- * Version:           2.0
+ * Version:           2.0.2
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Author:            ReviewsEmbedder.com
@@ -68,13 +68,31 @@ if ( function_exists( 'grwp_fs' ) ) {
      * No code must be present outside of this block.
      * Else, pro plugin activation will throw an error while free version is activated
      */
-    define( 'GRWP_GOOGLE_REVIEWS_VERSION', '1.7.6' );
+    define( 'GRWP_GOOGLE_REVIEWS_VERSION', '2.0.1' );
     // Base path to plugin for includes
     define( 'GR_BASE_PATH', plugin_dir_path( __FILE__ ) );
     define( 'GR_BASE_PATH_ADMIN', plugin_dir_path( __FILE__ ) . 'admin/' );
     define( 'GR_BASE_PATH_PUBLIC', plugin_dir_path( __FILE__ ) . 'public/' );
     define( 'GR_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ) );
     define( 'GR_PLUGIN_REL_PATH', dirname( plugin_basename( __FILE__ ) ) );
+    /**
+     * Default header type for installs that have not explicitly chosen one.
+     *
+     * New installs (first activated on v2.0 or later) default to the
+     * "Compact – plain" header. Installs that predate v2.0 keep the legacy
+     * "Standard" header, since they never consented to the new look. The
+     * first-activation version is stored once and preserved across updates.
+     *
+     * @return string 'compact_plain' or 'standard'.
+     */
+    function grwp_default_header_type() {
+        $activation_version = get_option( 'grwp_activation_version' );
+        if ( $activation_version && version_compare( $activation_version, '2.0', '>=' ) ) {
+            return 'compact_plain';
+        }
+        return 'standard';
+    }
+
     // Register class autoloader
     spl_autoload_register( function ( $class ) {
         $className = strtolower( str_replace( '_', '-', $class ) );
