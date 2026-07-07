@@ -100,18 +100,18 @@ class GRWP_Google_Reviews_Output {
     protected function get_rating_label() {
         $rating = $this->rating_value;
         if ( $rating >= 4.5 ) {
-            return __( 'Excellent', 'embedder-for-google-reviews' );
+            return grwp_text( 'excellent', __( 'Excellent', 'embedder-for-google-reviews' ) );
         }
         if ( $rating >= 3.5 ) {
-            return __( 'Very good', 'embedder-for-google-reviews' );
+            return grwp_text( 'very_good', __( 'Very good', 'embedder-for-google-reviews' ) );
         }
         if ( $rating >= 2.5 ) {
-            return __( 'Average', 'embedder-for-google-reviews' );
+            return grwp_text( 'average', __( 'Average', 'embedder-for-google-reviews' ) );
         }
         if ( $rating >= 1.5 ) {
-            return __( 'Poor', 'embedder-for-google-reviews' );
+            return grwp_text( 'poor', __( 'Poor', 'embedder-for-google-reviews' ) );
         }
-        return __( 'Bad', 'embedder-for-google-reviews' );
+        return grwp_text( 'bad', __( 'Bad', 'embedder-for-google-reviews' ) );
     }
 
     /**
@@ -198,21 +198,32 @@ class GRWP_Google_Reviews_Output {
      */
     protected function get_standard_header( $show_verified, $txt ) {
         $stars = $this->get_total_stars();
+        // "Out of 5 stars": the Translation override uses a {{n}} placeholder for
+        // the maximum rating, the built-in default is a translatable string.
+        $out_of_override = grwp_text( 'out_of_stars', '' );
+        if ( $out_of_override !== '' ) {
+            $out_of_text = str_replace( '{{n}}', 5, $out_of_override );
+        } else {
+            /* translators: out of 5 stars */
+            $out_of_text = __( 'Out of 5 stars', 'embedder-for-google-reviews' );
+        }
         $output = '<div class="grwp_header">';
         $output .= '<div class="grwp_header-inner">';
-        $output .= sprintf( '<h3 class="grwp_business-title">%s</h3>', $this->place_title );
-        $output .= sprintf( 
-            '<span class="grwp_total-rating">%s</span><span class="grwp_5_stars">%s</span>',
-            $this->rating_formatted,
-            /* translators: out of 5 stars */
-            __( 'Out of 5 stars', 'embedder-for-google-reviews' )
-         );
+        $output .= sprintf( '<h3 class="grwp_business-title">%s</h3>', grwp_text( 'company_name', $this->place_title ) );
+        $output .= sprintf( '<span class="grwp_total-rating">%s</span><span class="grwp_5_stars">%s</span>', $this->rating_formatted, $out_of_text );
         $output .= $stars;
-        $overall = sprintf( 
-            /* translators: %s: total reviews */
-            __( 'Overall rating out of %s Google reviews', 'embedder-for-google-reviews' ),
-            $this->total_reviews
-         );
+        // Overall rating line: the Translation override uses a {{n}} placeholder
+        // for the review count, the built-in default is a translatable pattern.
+        $overall_override = grwp_text( 'overall_rating', '' );
+        if ( $overall_override !== '' ) {
+            $overall = str_replace( '{{n}}', $this->total_reviews, $overall_override );
+        } else {
+            $overall = sprintf( 
+                /* translators: %s: total reviews */
+                __( 'Overall rating out of %s Google reviews', 'embedder-for-google-reviews' ),
+                $this->total_reviews
+             );
+        }
         // Keep the badge inside the heading so it sits inline after the text and
         // only wraps to the next line when there isn't enough width.
         if ( $show_verified ) {
@@ -232,7 +243,7 @@ class GRWP_Google_Reviews_Output {
     protected function get_verified_badge( $txt = '' ) {
         $verified_svg = GR_PLUGIN_DIR_URL . 'dist/images/verified-badge.svg';
         /* translators: 'Verified by' badge */
-        $verified_label = __( 'Verified by', 'embedder-for-google-reviews' );
+        $verified_label = grwp_text( 'verified_by', __( 'Verified by', 'embedder-for-google-reviews' ) );
         return sprintf(
             '<span class="grwp_verified-badge"><a href="%1$s" target="_blank" rel="noopener noreferrer" aria-label="%2$s"><span class="grwp_verified-badge-check"></span><span class="grwp_verified-badge-tip">%3$s <img class="grwp_verified-badge-tip-icon" src="%4$s" alt="%5$s" /></span></a></span>',
             'https://reviewsembedder.com',
@@ -269,11 +280,19 @@ class GRWP_Google_Reviews_Output {
         $output .= sprintf( '<span class="grwp_compact-label">%s</span>', esc_html( $label ) );
         $output .= sprintf( '<span class="grwp_compact-stars">%s</span>', $stars );
         $output .= sprintf( '<span class="grwp_compact-rating">%s</span>', esc_html( $this->rating_formatted ) );
-        $output .= sprintf( '<span class="grwp_compact-count">%s</span>', sprintf( 
-            /* translators: %s: total number of reviews */
-            esc_html__( '%s reviews', 'embedder-for-google-reviews' ),
-            esc_html( $this->total_reviews )
-         ) );
+        // Review count: the Translation override uses a {{n}} placeholder for
+        // the number, the built-in default is a translatable sprintf pattern.
+        $count_override = grwp_text( 'n_reviews', '' );
+        if ( $count_override !== '' ) {
+            $count_text = str_replace( '{{n}}', $this->total_reviews, $count_override );
+        } else {
+            $count_text = sprintf( 
+                /* translators: %s: total number of reviews */
+                __( '%s reviews', 'embedder-for-google-reviews' ),
+                $this->total_reviews
+             );
+        }
+        $output .= sprintf( '<span class="grwp_compact-count">%s</span>', esc_html( $count_text ) );
         if ( $show_verified ) {
             $output .= $this->get_verified_badge( $txt );
         }
@@ -323,20 +342,24 @@ class GRWP_Google_Reviews_Output {
     }
 
     /**
-     * Text for the button. A custom text always wins; otherwise the default
-     * depends on the selected link target.
+     * Text for the button. The custom text only applies in "Custom URL & text"
+     * mode; the Google link modes use their own (translation-overridable)
+     * default so a stale custom text can't leak onto them.
      * @return string
      */
     protected function get_button_text() {
-        if ( !empty( $this->options['button_text'] ) ) {
-            return $this->options['button_text'];
-        }
         switch ( $this->get_button_type() ) {
             case 'write_review':
-                return __( 'Write a review', 'embedder-for-google-reviews' );
+                return grwp_text( 'write_a_review', __( 'Write a review', 'embedder-for-google-reviews' ) );
             case 'reviews_google':
-                return __( 'View on Google', 'embedder-for-google-reviews' );
+                return grwp_text( 'view_on_google', __( 'View on Google', 'embedder-for-google-reviews' ) );
+            case 'custom':
             default:
+                // Custom mode: the user's custom text wins; otherwise fall back
+                // to the standard (overridable) default.
+                if ( !empty( $this->options['button_text'] ) ) {
+                    return $this->options['button_text'];
+                }
                 return __( 'See all Reviews', 'embedder-for-google-reviews' );
         }
     }

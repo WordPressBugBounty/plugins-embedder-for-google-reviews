@@ -14,6 +14,7 @@ class GRWP_Global_Settings {
         $this->add_slider_settings();
         $this->add_grid_settings();
         $this->add_legacy_settings();
+        $this->add_translation_settings();
     }
 
     /**
@@ -269,10 +270,43 @@ class GRWP_Global_Settings {
             'google_reviews_style_layout_setting_section'
         );
         add_settings_field(
+            'disable_box_shadow',
+            // id
+            /* translators: Remove card box shadows */
+            __( 'Remove card box shadows', 'embedder-for-google-reviews' ),
+            array($this, 'disable_box_shadow_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section'
+        );
+        add_settings_field(
+            'content_max_height',
+            // id
+            /* translators: Maximum height of the review text (px) */
+            __( 'Content max height (px)', 'embedder-for-google-reviews' ),
+            array($this, 'content_max_height_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section_inputs'
+        );
+        add_settings_field(
+            'content_overflow',
+            // id
+            /* translators: How overflowing review text is handled */
+            __( 'Content overflow', 'embedder-for-google-reviews' ),
+            array($this, 'content_overflow_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_style_layout_setting_section_inputs'
+        );
+        add_settings_field(
             'button_type',
             // id
-            /* translators: Button link target */
-            __( 'Button', 'embedder-for-google-reviews' ),
+            /* translators: Call to action button link target */
+            __( 'Call to action button', 'embedder-for-google-reviews' ),
             array($this, 'button_type_callback'),
             // callback
             $this->settings_slug,
@@ -309,17 +343,95 @@ class GRWP_Global_Settings {
                 'class' => 'grwp-button-custom-row',
             )
         );
-        add_settings_field(
-            'disable_box_shadow',
-            // id
-            /* translators: Remove card box shadows */
-            __( 'Remove card box shadows', 'embedder-for-google-reviews' ),
-            array($this, 'disable_box_shadow_callback'),
-            // callback
-            $this->settings_slug,
-            // page
-            'google_reviews_style_layout_setting_section'
-        );
+    }
+
+    /**
+     * Translation overrides (Translation subpage). Only registers the option;
+     * the fields are rendered directly by the subpage template.
+     * @return void
+     */
+    private function add_translation_settings() {
+        register_setting( 
+            'grwp_string_overrides_group',
+            // option_group
+            'grwp_string_overrides',
+            // option_name
+            array($this, 'grwp_sanitize_string_overrides')
+         );
+    }
+
+    /**
+     * Sanitize the Translation subpage overrides: only known keys, plain text.
+     * @param mixed $input
+     * @return array
+     */
+    public function grwp_sanitize_string_overrides( $input ) {
+        $sanitary_values = array();
+        if ( !is_array( $input ) ) {
+            return $sanitary_values;
+        }
+        foreach ( array_keys( grwp_translatable_strings() ) as $key ) {
+            if ( isset( $input[$key] ) ) {
+                $sanitary_values[$key] = sanitize_text_field( $input[$key] );
+            }
+        }
+        return $sanitary_values;
+    }
+
+    /**
+     * Maximum height of the review text of each review card. Empty keeps the
+     * per-style default (76px).
+     * @return void
+     */
+    public function content_max_height_callback() {
+        global $allowed_html;
+        $value = ( isset( $this->google_reviews_options['content_max_height'] ) && $this->google_reviews_options['content_max_height'] !== '' ? intval( $this->google_reviews_options['content_max_height'] ) : '' );
+        ob_start();
+        ?>
+
+        <input type="number"
+               name="google_reviews_option_name[content_max_height]"
+               id="content_max_height"
+               min="0"
+               step="1"
+               placeholder="76"
+               value="<?php 
+        echo esc_attr( $value );
+        ?>"
+        >
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    /**
+     * How review text taller than the max height is handled: a vertical
+     * scrollbar (default) or a "Read more" button that expands the card.
+     * @return void
+     */
+    public function content_overflow_callback() {
+        $current = ( isset( $this->google_reviews_options['content_overflow'] ) ? $this->google_reviews_options['content_overflow'] : 'scrollbar' );
+        ?>
+
+        <select name="google_reviews_option_name[content_overflow]" id="content_overflow">
+            <option value="scrollbar" <?php 
+        selected( $current, 'scrollbar' );
+        ?>>
+                <?php 
+        esc_html_e( 'Vertical scrollbar', 'embedder-for-google-reviews' );
+        ?>
+            </option>
+            <option value="read_more" <?php 
+        selected( $current, 'read_more' );
+        ?>>
+                <?php 
+        esc_html_e( '"Read more" button', 'embedder-for-google-reviews' );
+        ?>
+            </option>
+        </select>
+
+        <?php 
     }
 
     /**
@@ -369,17 +481,8 @@ class GRWP_Global_Settings {
             // page
             'google_reviews_grid_setting_section'
         );
-        add_settings_field(
-            'show_more_grid_text',
-            // id
-            /* translators: "Load more" button text (grid load-more) */
-            __( '"Load more" button text', 'embedder-for-google-reviews' ),
-            array($this, 'show_more_grid_text_callback'),
-            // callback
-            $this->settings_slug,
-            // page
-            'google_reviews_grid_setting_section'
-        );
+        // The "Load more" button text is edited on the Translation subpage
+        // (the "Show more" string), not here.
     }
 
     public function google_reviews_display_grid_info() {
@@ -446,37 +549,31 @@ class GRWP_Global_Settings {
         selected( $current, 'standard' );
         ?>>
                     <?php 
-        esc_html_e( 'Standard (Overall rating out of X reviews)', 'embedder-for-google-reviews' );
+        esc_html_e( 'Standard', 'embedder-for-google-reviews' );
         ?>
                 </option>
                 <option value="compact" <?php 
         selected( $current, 'compact' );
         ?>>
                     <?php 
-        esc_html_e( 'Compact bar (logo, rating & "See all reviews")', 'embedder-for-google-reviews' );
+        esc_html_e( 'Compact bar', 'embedder-for-google-reviews' );
         ?>
                 </option>
                 <option value="compact_plain" <?php 
         selected( $current, 'compact_plain' );
         ?>>
                     <?php 
-        esc_html_e( 'Compact – plain (no background, border or shadow)', 'embedder-for-google-reviews' );
+        esc_html_e( 'Compact – plain', 'embedder-for-google-reviews' );
         ?>
                 </option>
                 <option value="none" <?php 
         selected( $current, 'none' );
         ?>>
                     <?php 
-        esc_html_e( 'None (hide header)', 'embedder-for-google-reviews' );
+        esc_html_e( 'None', 'embedder-for-google-reviews' );
         ?>
                 </option>
             </select>
-
-        <p class="description" style="margin-top:6px;">
-            <?php 
-        esc_html_e( 'The "Compact bar" header shows a "See all reviews" button (using the Button setting from Display Settings) and replaces the standalone button below the widget.', 'embedder-for-google-reviews' );
-        ?>
-        </p>
 
         <?php 
     }
@@ -526,11 +623,55 @@ class GRWP_Global_Settings {
             'google_reviews_slider_setting_section'
         );
         add_settings_field(
+            'slider_arrows_position',
+            // id
+            /* translators: Prev/next arrow placement */
+            __( 'Arrow position', 'embedder-for-google-reviews' ),
+            array($this, 'slider_arrows_position_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
+        );
+        add_settings_field(
             'disable_loop_slider',
             // id
             /* translators: Layout type */
             __( 'Disable slider endless loop', 'embedder-for-google-reviews' ),
             array($this, 'disable_loop_slider_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
+        );
+        add_settings_field(
+            'pause_on_hover',
+            // id
+            /* translators: Pause slider autoplay on mouseover */
+            __( 'Pause on mouseover', 'embedder-for-google-reviews' ),
+            array($this, 'pause_on_hover_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
+        );
+        add_settings_field(
+            'marquee_slider',
+            // id
+            /* translators: Marquee slider */
+            __( 'Marquee slider <br> (continuous scrolling)', 'embedder-for-google-reviews' ),
+            array($this, 'marquee_slider_callback'),
+            // callback
+            $this->settings_slug,
+            // page
+            'google_reviews_slider_setting_section'
+        );
+        add_settings_field(
+            'marquee_speed',
+            // id
+            /* translators: Marquee scrolling speed */
+            __( 'Marquee speed <br> (1 = slow, 10 = fast)', 'embedder-for-google-reviews' ),
+            array($this, 'marquee_speed_callback'),
             // callback
             $this->settings_slug,
             // page
@@ -604,6 +745,37 @@ class GRWP_Global_Settings {
         echo wp_kses( $html, $allowed_html );
     }
 
+    /**
+     * Prev/next arrow placement: Below or Middle. The default for installs that
+     * have not chosen one depends on the first-activation version (see
+     * grwp_default_arrows_position()).
+     * @return void
+     */
+    public function slider_arrows_position_callback() {
+        $current = ( isset( $this->google_reviews_options['slider_arrows_position'] ) ? $this->google_reviews_options['slider_arrows_position'] : grwp_default_arrows_position() );
+        if ( !in_array( $current, array('below', 'middle'), true ) ) {
+            $current = grwp_default_arrows_position();
+        }
+        ?>
+            <div class="tooltip">
+                <input type="hidden" name="google_reviews_option_name[slider_arrows_position]" value="<?php 
+        echo esc_attr( $current );
+        ?>" />
+                <select disabled>
+                    <option>
+                        <?php 
+        echo ( 'middle' === $current ? esc_html__( 'Middle', 'embedder-for-google-reviews' ) : esc_html__( 'Below', 'embedder-for-google-reviews' ) );
+        ?>
+                    </option>
+                </select>
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=arrow_position&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
+
+        <?php 
+    }
+
     public function disable_loop_slider_callback() {
         global $allowed_html;
         ob_start();
@@ -632,6 +804,109 @@ class GRWP_Global_Settings {
         esc_html_e( 'Yes', 'embedder-for-google-reviews' );
         ?>
         </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    public function pause_on_hover_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <?php 
+        ?>
+            <div class="tooltip">
+                <input type="hidden"
+                       name="google_reviews_option_name[pause_on_hover]"
+                       id="pause_on_hover"
+                       value="0"
+                />
+
+                <input type="checkbox"
+                       name="google_reviews_option_name[pause_on_hover]"
+                       disabled
+                />
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=pause_on_hover&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    public function marquee_slider_callback() {
+        global $allowed_html;
+        ob_start();
+        ?>
+
+        <?php 
+        ?>
+            <div class="tooltip">
+                <input type="hidden"
+                       name="google_reviews_option_name[marquee_slider]"
+                       id="marquee_slider"
+                       value="0"
+                />
+
+                <input type="checkbox"
+                       name="google_reviews_option_name[marquee_slider]"
+                       disabled
+                />
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=marquee_slider&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
+
+        <span>
+            <?php 
+        esc_html_e( 'Yes', 'embedder-for-google-reviews' );
+        ?>
+        </span>
+
+        <?php 
+        $html = ob_get_clean();
+        echo wp_kses( $html, $allowed_html );
+    }
+
+    public function marquee_speed_callback() {
+        global $allowed_html;
+        $value = ( isset( $this->google_reviews_options['marquee_speed'] ) ? intval( $this->google_reviews_options['marquee_speed'] ) : 5 );
+        if ( $value < 1 ) {
+            $value = 1;
+        }
+        if ( $value > 10 ) {
+            $value = 10;
+        }
+        ob_start();
+        ?>
+
+        <?php 
+        ?>
+            <div class="tooltip">
+                <input type="hidden"
+                       name="google_reviews_option_name[marquee_speed]"
+                       value="5"
+                />
+                <input type="number"
+                       name="google_reviews_option_name[marquee_speed]"
+                       id="marquee_speed"
+                       value="5"
+                       disabled
+                />
+                <span class="tooltiptext">PRO Feature <br> <a href="https://reviewsembedder.com/?utm_source=wp_backend&utm_medium=marquee_speed&utm_campaign=upgrade" target="_blank">⚡ Upgrade now</a></span>
+            </div>
+        <?php 
+        ?>
 
         <?php 
         $html = ob_get_clean();
@@ -743,6 +1018,14 @@ class GRWP_Global_Settings {
         if ( isset( $input['disable_box_shadow'] ) ) {
             $sanitary_values['disable_box_shadow'] = sanitize_text_field( $input['disable_box_shadow'] );
         }
+        if ( isset( $input['content_max_height'] ) ) {
+            // empty keeps the per-style default height
+            $sanitary_values['content_max_height'] = ( $input['content_max_height'] === '' ? '' : absint( $input['content_max_height'] ) );
+        }
+        if ( isset( $input['content_overflow'] ) ) {
+            $overflow = sanitize_text_field( $input['content_overflow'] );
+            $sanitary_values['content_overflow'] = ( in_array( $overflow, array('scrollbar', 'read_more'), true ) ? $overflow : 'scrollbar' );
+        }
         if ( isset( $input['show_more_grid'] ) ) {
             $sanitary_values['show_more_grid'] = sanitize_text_field( $input['show_more_grid'] );
         }
@@ -752,8 +1035,13 @@ class GRWP_Global_Settings {
         if ( isset( $input['show_more_grid_load_more_rows'] ) ) {
             $sanitary_values['show_more_grid_load_more_rows'] = absint( $input['show_more_grid_load_more_rows'] );
         }
+        // The "Load more" text moved to the Translation subpage. No form field
+        // writes it here anymore, so carry any legacy saved value forward (used
+        // as the front-end fallback) instead of wiping it on save.
         if ( isset( $input['show_more_grid_text'] ) ) {
             $sanitary_values['show_more_grid_text'] = sanitize_text_field( $input['show_more_grid_text'] );
+        } elseif ( isset( $existing_options['show_more_grid_text'] ) ) {
+            $sanitary_values['show_more_grid_text'] = $existing_options['show_more_grid_text'];
         }
         if ( isset( $input['link_users_profiles'] ) ) {
             $sanitary_values['link_users_profiles'] = $input['link_users_profiles'];
@@ -763,6 +1051,20 @@ class GRWP_Global_Settings {
         }
         if ( isset( $input['disable_loop_slider'] ) ) {
             $sanitary_values['disable_loop_slider'] = $input['disable_loop_slider'];
+        }
+        if ( isset( $input['pause_on_hover'] ) ) {
+            $sanitary_values['pause_on_hover'] = $input['pause_on_hover'];
+        }
+        if ( isset( $input['slider_arrows_position'] ) ) {
+            $position = sanitize_text_field( $input['slider_arrows_position'] );
+            $sanitary_values['slider_arrows_position'] = ( in_array( $position, array('below', 'middle'), true ) ? $position : grwp_default_arrows_position() );
+        }
+        if ( isset( $input['marquee_slider'] ) ) {
+            $sanitary_values['marquee_slider'] = $input['marquee_slider'];
+        }
+        if ( isset( $input['marquee_speed'] ) ) {
+            $speed = absint( $input['marquee_speed'] );
+            $sanitary_values['marquee_speed'] = min( 10, max( 1, $speed ) );
         }
         if ( isset( $input['reviews_language_3'] ) ) {
             $sanitary_values['reviews_language_3'] = $input['reviews_language_3'];
@@ -1379,11 +1681,6 @@ class GRWP_Global_Settings {
         echo esc_attr( $value );
         ?>"
         >
-        <p class="description" style="margin-top:6px;">
-            <?php 
-        esc_html_e( 'Number of fully-filled review rows shown before "Load more" is clicked. The number of cards per row adapts to the screen width. Only applies when "Show \'Load more\' button" is enabled above.', 'embedder-for-google-reviews' );
-        ?>
-        </p>
 
         <?php 
         $html = ob_get_clean();
@@ -1412,39 +1709,6 @@ class GRWP_Global_Settings {
         echo esc_attr( $value );
         ?>"
         >
-        <p class="description" style="margin-top:6px;">
-            <?php 
-        esc_html_e( 'Number of additional fully-filled review rows revealed each time "Load more" is clicked. Only applies when "Show \'Load more\' button" is enabled above.', 'embedder-for-google-reviews' );
-        ?>
-        </p>
-
-        <?php 
-        $html = ob_get_clean();
-        echo wp_kses( $html, $allowed_html );
-    }
-
-    /**
-     * Text shown on the grid "Load more" button
-     * @return void
-     */
-    public function show_more_grid_text_callback() {
-        global $allowed_html;
-        $value = ( isset( $this->google_reviews_options['show_more_grid_text'] ) && $this->google_reviews_options['show_more_grid_text'] !== '' ? $this->google_reviews_options['show_more_grid_text'] : __( 'Show more', 'embedder-for-google-reviews' ) );
-        ob_start();
-        ?>
-
-        <input type="text"
-               name="google_reviews_option_name[show_more_grid_text]"
-               id="show_more_grid_text"
-               value="<?php 
-        echo esc_attr( $value );
-        ?>"
-        >
-        <p class="description" style="margin-top:6px;">
-            <?php 
-        esc_html_e( 'Only applies when "Show \'Load more\' button" is enabled above.', 'embedder-for-google-reviews' );
-        ?>
-        </p>
 
         <?php 
         $html = ob_get_clean();
@@ -1561,7 +1825,7 @@ class GRWP_Global_Settings {
         ?>
         <select name="google_reviews_option_name[layout_style]" id="layout_style">
             <?php 
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 11; $i++) {
             ?>
                 <option
                     <?php 

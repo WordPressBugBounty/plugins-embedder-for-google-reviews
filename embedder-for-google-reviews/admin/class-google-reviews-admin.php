@@ -117,7 +117,7 @@ class GRWP_Google_Reviews_Admin {
      */
     private function is_plugin_admin_page() {
         $page = ( isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '' );
-        return 'google-reviews' === $page || 'how-to-free-version' === $page || 'how-to-premium-version' === $page;
+        return 'google-reviews' === $page || 'google-reviews-translation' === $page || 'how-to-free-version' === $page || 'how-to-premium-version' === $page;
     }
 
     /**
