@@ -9,7 +9,7 @@
  * Plugin Name:       Embedder for Google Reviews
  * Plugin URI:        https://reviewsembedder.com
  * Description:       This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
- * Version:           2.1.1
+ * Version:           2.1.2
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Author:            ReviewsEmbedder.com
@@ -68,7 +68,7 @@ if ( function_exists( 'grwp_fs' ) ) {
      * No code must be present outside of this block.
      * Else, pro plugin activation will throw an error while free version is activated
      */
-    define( 'GRWP_GOOGLE_REVIEWS_VERSION', '2.1.1' );
+    define( 'GRWP_GOOGLE_REVIEWS_VERSION', '2.1.2' );
     // Base path to plugin for includes
     define( 'GR_BASE_PATH', plugin_dir_path( __FILE__ ) );
     define( 'GR_BASE_PATH_ADMIN', plugin_dir_path( __FILE__ ) . 'admin/' );
