@@ -32,6 +32,8 @@ class GRWP_Google_Reviews_Admin {
         add_action( 'admin_init', array($this, 'google_reviews_page_init') );
         // newest version
         new GRWP_Free_API_Service();
+        // Daily upsell modal on the start screen
+        new GRWP_Upsell_Modal();
         $this->plugin_name = $plugin_name;
         $this->version = $version;
         require_once $this->dir . '../public/includes/allowed-html.php';

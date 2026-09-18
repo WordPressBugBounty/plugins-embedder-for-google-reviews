@@ -1,11 +1,11 @@
 === Embedder for Google Reviews ===
 Contributors: paretodigital, googlereviewsplugin, freemius
 Tags: google reviews, google reviews plugin, google reviews widget, google reviews block, google reviews slider
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 Tags: google reviews, google, reviews, rating, reviews plugin
 
 This Google Reviews Plugin pulls reviews from Google profiles and displays them on your website.
